@@ -54,6 +54,13 @@ class Player:
         else:
             print('Out of healing potions!')
             
+    #this will allow us to select our next action
+    def turn_select(self):
+        actions = ["Attack", "Heal"]
+        actions_string = "\n".join(actions)  # Join each action with a newline character
+        choice = input(f"Choose your action:\n{actions_string}\n> ")
+        return choice
+
 
     #function which checks if fighter is alive
     def check_if_alive(self):
@@ -126,8 +133,7 @@ player_name = input("What is the name of your fighter?")
 player = Player(100, 100, {'Health Potion': 1}, 10, 15, 13, player_name)
 enemy = npc(100, 100, {'Health Potion': 1}, 5, 10, 10, "Goblin")
 
-
-        
+    
 class Combat_Loop:
     def __init__(self, player, enemy):
         self.player = player
@@ -183,18 +189,21 @@ class Combat_Loop:
             print(random.choice(miss))
 
     def player_turn(self):
-        if self.player.health <40:
+        action = self.player.turn_select()
+        if action == "Attack":
+            if self.player.roll_for_hit():
+                self.enemy.receive_attack(player)
+                self.combat_text(True, player, enemy)
+            elif not self.player.roll_for_hit():
+                self.combat_text(False, player, enemy)
+        elif action == "Heal":
             self.player.use_health_potion()
-        if self.player.roll_for_hit():
-            self.enemy.receive_attack(player)
-            self.combat_text(True, player, enemy)
-        elif not self.player.roll_for_hit():
-            self.combat_text(False, player, enemy)
         time.sleep(1)
+
 
     def enemy_turn(self):
         if self.enemy.health <40:
-            self.player.use_health_potion()
+            self.enemy.use_health_potion()
         if self.enemy.roll_for_hit():
             self.player.receive_attack(enemy)
             self.combat_text(True, enemy, player)
